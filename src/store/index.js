@@ -1,10 +1,14 @@
 import { createStore } from 'vuex'
+import ratebpi from './modules/ratebpi'
 import weather from './modules/weather'
+import comment from './modules/comment'
 
 
 export default createStore({
   modules: {
-    weather
+    ratebpi,
+    weather,
+    comment
   }
 })
 

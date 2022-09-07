@@ -8,7 +8,7 @@ export default {
       allTodo: [{ id: this.id++, text: "create todo", done: false }],
     };
   },
-  computed:{
+  computed: {
     completedTodo() {
       return this.hideCompleted
         ? this.allTodo.filter((t) => !t.done)
@@ -17,7 +17,6 @@ export default {
   },
   methods: {
     addTodo() {
-     
       if (this.newTodo !== "") {
         this.allTodo.push({
           id: this.id++,

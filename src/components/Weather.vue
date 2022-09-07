@@ -1,83 +1,32 @@
 <script>
+import {mapActions,mapGetters} from 'vuex'
+
 export default {
-  data() {
-    return {
-      all_weater: {
-        name: "",
-        temp: "",
-        feels: "",
-        img_url: "",
-      },
-      apiKey: process.env.VUE_APP_WETHER,
-      city: "Minsk",
-      info: "",
-    };
-  }, 
   methods: {
-    async WeaterF() {
-      let url = `http://api.openweathermap.org/data/2.5/weather?q=${this.city}&lang=ru&units=metric&appid=${this.apiKey}`;
-      fetch(url)
-        .then(async (response) => {
-          const data = await response.json();
-          console.log(data);
-          this.all_weater.name = data.name;
-          this.all_weater.temp = Math.round(data.main.temp);
-          this.all_weater.feels = Math.round(data.main.feels_like);
-          this.all_weater.img_url =
-            "https://openweathermap.org/img/wn/" +
-            data.weather[0]["icon"] +
-            "@2x.png";
-        })
-        .catch(function () {
-          this.all_weater.name = "No information about this city";
-          this.all_weater.temp = "not found";
-          this.all_weater.feels = "not found";
-          this.all_weater.img_url =
-            "https://cdn-icons-png.flaticon.com/512/929/929457.png";
-        });
-    },
-    async Curs() {
-      fetch(
-        "https://api.coindesk.com/v1/bpi/currentprice.json"
-      )
-        .then(async (response) => {
-          const data = await response.json();
-          this.info = data.bpi;
-        })
-        .catch(function () {
-          console.log("error");
-        });
-    },
+    ...mapActions('weather',['fetchWeather'])
   },
   mounted() {
-    this.WeaterF();
-    // this.$store.dispatch()
-    console.log(this.$store.dispatch)
-    this.Curs();
+    this.fetchWeather();
   },
+   computed:{
+    ...mapGetters({
+      allWeather:'weather/allWeather'
+    })
+  }
 };
 </script>
 
 <template>
   <div class="weather-w">
-    <div class="weather">
-      <input v-model="city" @keydown.enter="WeaterF" placeholder="inter city" />
-      <button @click="WetherF">Find</button>
+  <div class="weather">
+      <input v-model="allWeather.city" @keydown.enter="fetchWeather" placeholder="inter city" />
+      <button @click="fetchWeather">Find</button>
     </div>
     <div class="weather inf">
-      <h2>{{ all_weater.name }}</h2>
-      <p><img class="wet-img" :src="all_weater.img_url" alt="" /></p>
-      <p>temp:{{ all_weater.temp }}&deg;</p>
-      <p>feels like: {{ all_weater.feels }}&deg;</p>
-    </div>
-    <div class="weather">
-      <h2>Bitcoin Price Index</h2>
-      <div v-for="currency in info" :key="currency.id" class="currency">
-        {{ currency.description }}:
-        <span class="lighten">
-          {{ currency.rate_float }}<span v-html="currency.symbol"></span>
-        </span>
-      </div>
+      <h2>{{ allWeather.all_weather.name }}</h2>
+      <p><img class="wet-img" :src="allWeather.all_weather.img_url" alt="" /></p>
+      <p>temp:{{ allWeather.all_weather.temp }}&deg;</p>
+      <p>feels like: {{ allWeather.all_weather.feels }}&deg;</p>
     </div>
   </div>
 </template>
@@ -85,6 +34,7 @@ export default {
 <style>
 .weather-w {
   min-height: 300px;
+  color: aliceblue;
 }
 .wet-img {
   width: 100px;

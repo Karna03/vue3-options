@@ -1,40 +1,23 @@
 <script>
-import Form from "./Form.vue";
-import List from "./List.vue";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
-  components: { List, Form },
-  data() {
-    return {
-      items: [
-        {
-          id: 1,
-          content: "hihihi",
-          likes: 2,
-          avatar: `https://avatars.dicebear.com/api/male/${Date.now()}.svg`,
-          date: new Date(Date.now()).toLocaleString(),
-        },
-      ],
-    };
+  methods: {
+    ...mapActions("comment", ["addTweet"]),
+    removeItem(tweet) {
+      this.$store.commit("comment/removeItem", tweet);
+    },
   },
   created() {
     const itemData = localStorage.getItem("item-list");
-
     if (itemData) {
-      this.items = JSON.parse(itemData);
+      this.$store.commit("comment/parseItems", JSON.parse(itemData));
     }
   },
-  methods: {
-    addTweet(item) {
-      this.items.push(item);
-
-      localStorage.setItem("item-list", JSON.stringify(this.items));
-    },
-
-    removeItem(tweet) {
-      this.items = this.items.filter((t) => t !== tweet);
-      localStorage.setItem("item-list", JSON.stringify(this.items));
-    },
+  computed: {
+    ...mapGetters({
+      allComments: "comment/allComments",
+    }),
   },
 };
 </script>
@@ -42,13 +25,30 @@ export default {
 <template>
   <div class="tweet-wrapper">
     <div class="tweet">
-      <Form @tweet="addTweet" />
-      <List :items="items" @remove="removeItem" />
+      <form @submit.prevent="onSubmit">
+        <textarea
+          v-model="allComments.content"
+          required
+          placeholder="Type comment"
+        />
+        <button type="submit" @click="addTweet">Submit</button>
+      </form>
+      <ul>
+        <li v-for="item in allComments.items" :key="item.id">
+          <img :src="item.avatar" alt="avatar" />
+          <span>{{ item.date }}</span>
+          <span class="del" @click="removeItem(item)"> X</span>
+          <div>{{ item.content }}</div>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
 
 <style scoped>
+img {
+  height: 50px;
+}
 .tweet {
   margin: 10px auto;
   width: 60%;
@@ -56,5 +56,8 @@ export default {
   border-radius: 10px;
   height: 90%;
   padding: 1%;
+}
+.del {
+  color: red;
 }
 </style>
